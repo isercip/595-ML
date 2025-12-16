@@ -31,7 +31,7 @@ Everything runs locally on your machine.
 
 1. **Clone the repo**
 ```bash
-git clone https://github.com/yourusername/stresspredict.git
+git clone [https://github.com/yourusername/stresspredict.git](https://github.com/isercip/595-ML/edit/main/README.md)
 cd stresspredict
 Create virtual environment
 python -m venv venv
