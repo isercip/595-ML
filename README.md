@@ -1,53 +1,92 @@
-# StressPredict - Real-Time Stress Monitoring with AI
+# PhysioState  
+### Wellness-Oriented Stress Load Estimation from Wearable Sensor Data
 
-Hey! This is StressPredict - a real-time stress detection system that monitors physiological signals and gives you AI-powered wellness coaching when stress gets high.
+PhysioState is an interactive **Streamlit-based wellness application** that demonstrates how multi-sensor wearable data can be transformed into an interpretable **stress load estimate** using a transparent machine-learning pipeline.
 
-Built with Python and Streamlit so you can run it anywhere, no backend needed.
+The app is designed as a **research and educational prototype**, emphasizing clarity, interpretability, and system-level understanding rather than clinical diagnosis or treatment.
 
-## What This Does
+> ⚠️ **Disclaimer**  
+> This application provides **wellness-level insights only**.  
+> It is **not a medical device**, does not diagnose stress-related conditions, and does not provide medical advice.
 
-Stress is invisible until it's too late. This app watches your body's signals in real-time and alerts you the moment stress levels spike - then tells you exactly what to do about it.
+---
 
-It's like having a wellness coach that analyzes your vitals and jumps in when you need help.
+## 1. Motivation
 
-## The Tech Stack
+Wearable devices can measure physiological signals related to autonomic activation—such as heart rate, electrodermal activity, respiration, and motion—but raw sensor data are difficult to interpret without a structured processing pipeline.
 
-- **Streamlit** - Web UI framework
-- **Scikit-learn** - Machine learning (Random Forest classifier, 87% accuracy)
-- **OpenAI/Anthropic API** - LLM for personalized wellness coaching
-- **Plotly** - Interactive signal charts
-- **NumPy/Pandas** - Signal processing and feature extraction
-- **SQLite** - Local database for session history
+Most existing tools either:
+- focus on algorithmic performance without transparency, or  
+- visualize signals without explaining how predictions are generated.
 
-Everything runs locally on your machine.
+PhysioState addresses this gap by providing a **clear, end-to-end workflow** that shows:
+1. how raw wearable signals are processed,
+2. how features are extracted,
+3. how a baseline machine-learning model estimates stress load, and
+4. how results and limitations are communicated to users.
 
-## Setup Instructions
+---
 
-### What You Need
-- Python 3.9 or higher
-- OpenAI API key OR Anthropic API key (for AI coaching)
+## 2. Scope and Design Philosophy
 
-### Installation
+- **Wellness-focused**: estimates physiological *stress load*, not clinical stress.
+- **Context-aware**: incorporates activity or driving phase to reduce false positives.
+- **Interpretable by design**: simple models with feature-level explanations.
+- **Demo-ready**: works with real CSV data or internally generated synthetic sessions.
 
-1. **Clone the repo**
-```bash
-git clone [https://github.com/yourusername/stresspredict.git](https://github.com/isercip/595-ML/edit/main/README.md)
-cd stresspredict
-Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-Install dependencies
-pip install -r requirements.txt
-Set up your API key
-Create a .env file in the project root:
+Driving scenarios are used as a **default structured example** (rest → city → highway), but the same pipeline generalizes to other daily activities.
 
-OPENAI_API_KEY=your_openai_key_here
-# OR
-ANTHROPIC_API_KEY=your_anthropic_key_here
-Get your API key from:
+---
 
-OpenAI: https://platform.openai.com/api-keys
-Anthropic: https://console.anthropic.com/
-Run the app
-streamlit run app.py
-The app opens at localhost:8501 automatically.
+## 3. What the App Does
+
+### Inputs
+- Multi-sensor time-series data (real or synthetic)
+- Optional context markers (e.g., driving phase or activity)
+- Optional session metadata (sleep, caffeine, hydration, mood)
+
+### Processing
+- Signal preprocessing and imputation
+- Window-based feature extraction
+- Baseline machine-learning classification
+- Reliability and data-quality checks
+
+### Outputs
+- Stress load score and state (Low / Medium / High)
+- Confidence indicator based on signal quality
+- Feature-driven explanations
+- Wellness-safe recommendations
+
+---
+
+## 4. Data Format
+
+### Supported CSV Columns (any subset is allowed)
+
+**Time**
+- `t` (seconds), or  
+- `time` (seconds), or  
+- `timestamp` (any parseable datetime)
+
+**Physiological signals**
+- `hr` – Heart rate (bpm)
+- `eda` – Electrodermal activity (µS)
+- `resp` – Respiration rate (breaths/min)
+- `emg` – Muscle activity (a.u.)
+- `acc` – Acceleration / activity proxy (a.u.)
+- `skin_temp` – Skin temperature (°C)
+
+**Context**
+- `context` – categorical marker (e.g., rest / city / highway)
+
+**Label (optional)**
+- `label` – binary indicator (0/1) for high stress load
+
+Missing channels are handled through imputation, with reduced reliability reflected in the output.
+
+### Minimal example
+```csv
+t,hr,eda,resp,acc,context,label
+0,72,1.1,14,0.02,rest,0
+1,73,1.2,14,0.03,rest,0
+2,90,2.0,18,0.15,city,1
